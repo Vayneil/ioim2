@@ -13,16 +13,16 @@ import data_loader as data
 #     return result
 
 
-def sigma_p(e, e_dot, T):
-    Z = data.e_dot * math.exp(data.q_def * data.R_gas * data.T_def)
-    sigma0 = 1 / data.a[2] * (1 / math.sinh(Z / data.a[0]) ** (1 / data.a[1]))
-    sigma_sse = 1 / data.a[5] * (1 / math.sinh(Z / data.a[3]) ** (1 / data.a[4]))
-    sigma_ss = 1 / data.a[10] * (1 / math.sinh(Z / data.a[8]) ** (1 / data.a[9]))
-    e_r = (data.a[6] + data.a[7] * sigma_sse ** 2) / 3.23
-    e_xsc = data.a[13] * (Z / sigma_sse ** 2) ** data.a[14]
+def sigma_p(a, e, e_dot, T):
+    Z = e_dot * math.exp(data.q_def * data.R_gas * T)
+    sigma0 = 1 / a[2] * (math.asinh(Z / a[0]) ** (1 / a[1]))
+    sigma_sse = 1 / a[5] * (math.asinh(Z / a[3]) ** (1 / a[4]))
+    sigma_ss = 1 / a[10] * (math.asinh(Z / a[8]) ** (1 / a[9]))
+    e_r = (a[6] + a[7] * sigma_sse ** 2) / 3.23
+    e_xsc = a[13] * (Z / sigma_sse ** 2) ** a[14]
     e_xrc = e_xsc / 1.98
-    e_c = data.a[11] * (Z / sigma_sse ** 2) ** data.a[12]
+    e_c = a[11] * (Z / sigma_sse ** 2) ** a[12]
     R = 0
-    if data.e > e_c:
-        R = (sigma_sse - sigma_ss) * (1 - math.exp(-((data.e - e_c) / e_xrc) ** 2))
-    return sigma0 + (sigma_sse - sigma0) * math.sqrt(1 - math.exp(-data.e / e_r)) - R
+    if e > e_c:
+        R = (sigma_sse - sigma_ss) * (1 - math.exp(-((e - e_c) / e_xrc) ** 2))
+    return sigma0 + (sigma_sse - sigma0) * math.sqrt(1 - math.exp(-e / e_r)) - R, sigma0

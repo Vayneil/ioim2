@@ -1,4 +1,5 @@
 from openpyxl import load_workbook
+import random
 
 # This code takes Excel spreadsheet as an input and outputs data used in simulations
 # To use different inputs, comment or uncomment as needed
@@ -15,8 +16,8 @@ R_gas = 8.314
 for ws in wb.worksheets:
     e_values = [ws.cell(i, 1).value for i in range(4, 55)]
     sigma_values = [ws.cell(i, 2).value for i in range(4, 55)]
-    T_def.append(ws.cell(2, 1))
-    e_dot.append(ws.cell(2, 2))
+    T_def.append(ws.cell(2, 1).value + 273.15)
+    e_dot.append(ws.cell(2, 2).value + 273.15)
     e.append(e_values)
     sigma_test.append(sigma_values)
 
@@ -31,4 +32,6 @@ s = 0.02
 # 0 < alpha < 1
 alpha = 0.5
 # precision
-epsilon = 0.000001
+epsilon = 1e-6
+for i in range(len(a)):
+    a[i] = random.uniform(constraints[0][i], constraints[1][i])

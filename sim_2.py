@@ -1,52 +1,48 @@
-import random
 from copy import deepcopy
-
-import data_loader
-import strain
-import objective
+from objective import objective
 
 result_a = []
 smallest_a = []
 result_objective = 0
 objective_values = []
 smallest_objective_values = []
-for i in range(20):
-    print("step " + str(i))
-    for i in range(7):
-        a[i] = random.uniform(constraints[0][i], constraints[1][i])
-        # a = [500, 0.5, 0.5, 5000, 0.5, 45000, 0.5]
-        # relative step size
-    objective_values = []
-    result_a = hooke_jeeves(a, s, alpha, epsilon, e, T, e_dot, sigma_test, constraints)
-    result_objective = objective(result_a, e, T, e_dot, sigma_test)
-    if result_objective < smallest:
-        smallest_objective_values = deepcopy(objective_values)
-        smallest = result_objective
-        smallest_a = deepcopy(result_a)
-        print(result_a)
-        print(result_objective)
+# for i in range(20):
+#     print("step " + str(i))
+#     for i in range(7):
+#         a[i] = random.uniform(constraints[0][i], constraints[1][i])
+#         # a = [500, 0.5, 0.5, 5000, 0.5, 45000, 0.5]
+#         # relative step size
+#     objective_values = []
+#     result_a = hooke_jeeves(a, s, alpha, epsilon, e, T, e_dot, sigma_test, constraints)
+#     result_objective = objective(result_a, e, T, e_dot, sigma_test)
+#     if result_objective < smallest:
+#         smallest_objective_values = deepcopy(objective_values)
+#         smallest = result_objective
+#         smallest_a = deepcopy(result_a)
+#         print(result_a)
+#         print(result_objective)
 # print(result_a)
 
 # ws1 = wb.create_sheet(title="Results")
-wb1 = load_workbook('./Results.xlsx', read_only=False)
-ws1 = wb1.worksheets[0]
-ws1.cell(1, 3, result_objective)
-for i in range(len(smallest_a)):
-    ws1.cell(i + 1, 1, smallest_a[i])
-for i in range(len(smallest_objective_values)):
-    ws1.cell(i + 1, 2, smallest_objective_values[i])
+# wb1 = load_workbook('./Results.xlsx', read_only=False)
+# ws1 = wb1.worksheets[0]
+# ws1.cell(1, 3, result_objective)
+# for i in range(len(smallest_a)):
+#     ws1.cell(i + 1, 1, smallest_a[i])
+# for i in range(len(smallest_objective_values)):
+#     ws1.cell(i + 1, 2, smallest_objective_values[i])
 
-for ws in wb.worksheets:
-    for i in range(len(e[0])):
-        e1 = e[0][i]
-        T1 = ws.cell(2, 4).value
-        edot1 = ws.cell(2, 5).value
-        ws.cell(i + 2, 3, sigma_p(smallest_a, e1, T1, edot1))
-
-wb1.save('./Results.xlsx')
-wb.save('./Doswiadczenia.xlsx')
-wb.close()
-wb1.close()
+# for ws in wb.worksheets:
+#     for i in range(len(e[0])):
+#         e1 = e[0][i]
+#         T1 = ws.cell(2, 4).value
+#         edot1 = ws.cell(2, 5).value
+#         ws.cell(i + 2, 3, sigma_p(smallest_a, e1, T1, edot1))
+# 
+# wb1.save('./Results.xlsx')
+# wb.save('./Doswiadczenia.xlsx')
+# wb.close()
+# wb1.close()
 
 # 127.41171114187962
 # [179.55596276914937, 0.5, 0.12200341075755708, -1014.2046975999997, 5.8713463056566155, 34944.01339230601, 0.23720028880244573]
@@ -60,9 +56,9 @@ wb1.close()
 def hooke_jeeves(x, s, alpha, epsilon, e, T, e_dot, sigma_test, constraints):
     while s > epsilon:
         xb = deepcopy(x)
-        objective_values.append(objective(x, e, T, e_dot, sigma_test))
+        objective_values.append(objective(x))
         x = trial(xb, s, constraints)
-        if objective(x, e, T, e_dot, sigma_test) < objective(xb, e, T, e_dot, sigma_test):
+        if objective(x) < objective(xb):
             while True:
                 xb1 = deepcopy(xb)
                 xb = deepcopy(x)
@@ -87,7 +83,7 @@ def hooke_jeeves(x, s, alpha, epsilon, e, T, e_dot, sigma_test, constraints):
                 #     x = deepcopy(temp)
                 # x = 2 * xb - xb1
                 x = trial(x, s, constraints)
-                if objective(x, e, T, e_dot, sigma_test) >= objective(xb, e, T, e_dot, sigma_test):
+                if objective(x) >= objective(xb):
                     break
             x = deepcopy(xb)
         else:
@@ -100,12 +96,12 @@ def trial(x, s, constraints):
         trial_x = deepcopy(x)
         trial_x[j] = trial_x[j] + s * constraints[1][j]
         if constraints[1][j] > trial_x[j] > constraints[0][j] and \
-                objective(trial_x, e, T, e_dot, sigma_test) < objective(x, e, T, e_dot, sigma_test):
+                objective(trial_x) < objective(x):
             x = deepcopy(trial_x)
         else:
             trial_x[j] = trial_x[j] - 2 * s * constraints[1][j]
             if constraints[1][j] > trial_x[j] > constraints[0][j] and \
-                    objective(trial_x, e, T, e_dot, sigma_test) < objective(x, e, T, e_dot, sigma_test):
+                    objective(trial_x) < objective(x):
                 x = deepcopy(trial_x)
     # print(x)
     return x
