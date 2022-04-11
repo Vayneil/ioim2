@@ -1,3 +1,5 @@
+import math
+
 import data_loader as data
 from strain import sigma_p
 import math
@@ -13,28 +15,24 @@ import math
 #     return sum
 
 
-# SIM 2
-def objective():
+def objective(a):
     result = 0
     delta = 10
     for i in range(data.num_of_experiments):
         for j in range(data.num_of_measurements):
-            a, b = sigma_p(data.e[i][j], data.T_def[i], data.e_dot[i])
-            err_squared = ((data.sigma_test[i][j] - a) ** 2)
+            x, y = sigma_p(a, data.e[i][j], data.e_dot[i], data.T_def[i])
+            err_squared = ((data.sigma_test[i][j] - x) ** 2)
             err_relative = err_squared / data.sigma_test[i][j]
             result = result + err_relative
-            highest = 1E10
-            for k in range(125, 300, 25):
-                sigma, _ = sigma_p(data.e[i][j], data.T_def[i], k / 100.0)
-                if sigma < highest:
-                    highest = sigma
-                    print(k)
-            print(highest)
-            print(b)
-            if highest < b:
-                delta * math.fabs(b - highest)
-    print(result / data.num_of_experiments / data.num_of_measurements)
-    return result / data.num_of_experiments / data.num_of_measurements
-
-
-objective()
+            penalty = 0
+            smallest = 1e10
+            for k in range(120, 320, 20):
+                z, _ = sigma_p(a, k / 100.0, data.e_dot[i], data.T_def[i])
+                if z < smallest:
+                    smallest = z
+            if y > smallest:
+                penalty = penalty + delta * math.fabs(y - smallest)
+            result = result + penalty
+        result = result / data.num_of_measurements
+    result = result / data.num_of_experiments
+    return result
